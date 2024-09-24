@@ -67,37 +67,50 @@ const userController = {
   },
 
   signIn: async (req, res) => {
-    const { username, password } = req.body;
-    const user = await User.findOne({ username, password });
+    try {
+       const { username, password } = req.body;
+       const user = await User.findOne({ username, password });
 
-    const { success } = signInSchema.safeParse({ username, password });
+       signInSchema.parse({ username, password });
 
-    if (!success)
+       if (!user)
+         throw new Error("User not Exist");
+
+       const userId = user._id;
+       const token = jwt.sign({ userId }, process.env.JWT_SECRET);
+       res.json({ token });
+    } catch (error) {
+      let errorMessage;
+      if (error instanceof zod.ZodError) {
+        errorMessage = error.errors[0].message;
+      } else errorMessage = error.message;
+
       return res.status(411).json({
-        message: "Incorrect username or password",
+        message: "Error on SignIn",
+        error: errorMessage,
       });
-    if (!user)
-      return res.status(411).json({
-        message: "User not Exist",
-      });
-
-    const userId = user._id;
-    const token = jwt.sign({ userId }, process.env.JWT_SECRET);
-    res.json({ token });
+    }
+    
   },
 
   updateUserInfo: async (req, res) => {
-    const { success } = updateBodySchema.safeParse(req.body);
-    const userId = req.userId;
     try {
+       updateBodySchema.parse(req.body);
+      const userId = req.userId;
       if (!success) throw new Error("");
       await User.updateOne({ _id: userId }, req.body);
       return res.json({
         message: "Updated successfully",
       });
     } catch (error) {
+      let errorMessage;
+      if (error instanceof zod.ZodError) {
+        errorMessage = error.errors[0].message;
+      } else errorMessage = error.message;
+
       return res.status(411).json({
-        message: "Error while updating information",
+        message: "Error while updating user Information",
+        error: errorMessage,
       });
     }
   },
