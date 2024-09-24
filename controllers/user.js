@@ -15,19 +15,17 @@ const userController = {
   signUp: async (req, res) => {
     try {
       const { username, firstName, lastName, password } = req.body;
-      const parseData = userSchema.safeParse({
+       userSchema.parse({
         username,
         firstName,
         lastName,
         password,
       });
 
-      if (!parseData.success) {
-        throw new Error("Incorrect inputs");
-      }
+      
       const userExist = await User.findOne({ username });
       if (userExist) {
-        throw new Error("Incorrect inputs");
+        throw new Error("Username already exist");
       }
 
       const user = await User.create({
@@ -51,9 +49,19 @@ const userController = {
         token: jwtToken,
       });
     } catch (error) {
+      
+      let errorMessage
+      if(error instanceof zod.ZodError )
+      {
+        errorMessage=error.errors[0].message;
+      }
+      else errorMessage = error.message;
+
+      
+
       return res.status(411).json({
         message: "Error on SignUp",
-        error: error.message,
+        error: errorMessage,
       });
     }
   },
@@ -97,7 +105,6 @@ const userController = {
   filterUser: async (req, res) => {
     const filter = req.query.filter || "";
     try {
-      
       const users = await User.find({
         $or: [
           { firstName: { $regex: filter, $options: "i" } },
