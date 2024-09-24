@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const { JWT_SECRET } = require("../config");
+const dotenv = require("dotenv").config();
 const authMiddleware = (req, res, next) => {
   console.log("Auth Middleware")
   const authHeaders = req.headers.authorization;
@@ -9,7 +9,7 @@ const authMiddleware = (req, res, next) => {
   }
   const token = authHeaders.split(" ")[1];
   try {
-    const verifiedToken = jwt.verify(token, JWT_SECRET);
+    const verifiedToken = jwt.verify(token, process.env.JWT_SECRET);
     if (verifiedToken.userId){
         req.userId = verifiedToken.userId;
         next();

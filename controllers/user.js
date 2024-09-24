@@ -6,7 +6,7 @@ const {
 } = require("../zodValidation");
 const { User, Account } = require("../DB/db");
 const jwt = require("jsonwebtoken");
-const { JWT_SECRET } = require("../config");
+const dotenv = require("dotenv").config();
 
 const userController = {
   helloWorldController: (req, res) => {
@@ -44,7 +44,7 @@ const userController = {
         balance: Math.floor(Math.random() * 10000 + 1),
       });
 
-      const jwtToken = jwt.sign({ userId }, JWT_SECRET);
+      const jwtToken = jwt.sign({ userId }, process.env.JWT_SECRET);
 
       return res.json({
         message: "User created successfully",
@@ -74,7 +74,7 @@ const userController = {
       });
 
     const userId = user._id;
-    const token = jwt.sign({ userId }, JWT_SECRET);
+    const token = jwt.sign({ userId }, process.env.JWT_SECRET);
     res.json({ token });
   },
 
