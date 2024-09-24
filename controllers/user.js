@@ -97,7 +97,7 @@ const userController = {
   filterUser: async (req, res) => {
     const filter = req.query.filter || "";
     try {
-      if (!filter) throw new Error("Filter must be provided");
+      
       const users = await User.find({
         $or: [
           { firstName: { $regex: filter, $options: "i" } },
