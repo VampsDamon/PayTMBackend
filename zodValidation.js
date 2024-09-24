@@ -10,14 +10,14 @@ const userSchema = zod.object({
     .string()
     .max(50)
     .min(1, "Last name must contain at least 1 character(s)"),
-  password: zod.string().min(6, "Password must contain at least 1 character(s)"),
+  password: zod.string().min(6, "Password must contain at least 6 character(s)"),
 });
 
 const signInSchema = zod.object({
   username: zod.string().email("Invalid email address"),
   password: zod
     .string()
-    .min(6, "Password must contain at least 1 character(s)"),
+    .min(6, "Password must contain at least 6 character(s)"),
 });
 
 const updateBodySchema = zod.object({
